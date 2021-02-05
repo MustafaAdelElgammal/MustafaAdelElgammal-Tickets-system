@@ -22,11 +22,12 @@ Route::group(
     Route::get('/', function () {
         return view('dashboard');
     });
-    Route::resource('grades', 'Grades\GradeController');
     Route::group(['middleware' => ['auth',]], function () {
         Route::resource('roles', 'RoleController');
         Route::resource('users', 'UserController');
         Route::resource('tickets', 'TicketController');
+        Route::put('updateStatus/{id}', 'TicketController@updateStatus')->name('updateStatus');
+
     });
 });
 

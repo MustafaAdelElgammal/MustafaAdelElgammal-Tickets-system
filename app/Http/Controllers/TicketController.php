@@ -20,11 +20,10 @@ class TicketController extends Controller
     {
         $user = Auth::user();
         $user_role = $user->roles()->first();
-//        dd($user_role->name);
         if ($user_role->name == 'Super Admin'){
             $data = Ticket::orderBy('id', 'DESC')->get();
         }else{
-            $data = Ticket::where('user_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
+            $data = Ticket::where('user_id', Auth::user()->id)->orwhere('owner_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
 
         }
 
@@ -67,11 +66,11 @@ class TicketController extends Controller
         $ticket = Ticket::create($input);
         $user = $ticket->user->toarray();
 
-//        \Mail::send('pages.tickets.mails.create_ticket', $input, function($message) use ($user) {
-//            $message->to($user['email']);
-//            $message->from('no-reply@email.com');
-//            $message->subject( trans('main_trans.confirm_email'));
-//        });
+        \Mail::send('pages.tickets.mails.create_ticket', $input, function($message) use ($user) {
+            $message->to($user['email']);
+            $message->from('no-reply@email.com');
+            $message->subject( trans('main_trans.confirm_email'));
+        });
 
         return redirect()->route('tickets.index')
             ->with('success', 'Ticket created successfully');
@@ -142,5 +141,23 @@ class TicketController extends Controller
         Ticket::find($id)->delete();
         return redirect()->route('tickets.index')
             ->with('success','Ticket deleted successfully');
+    }
+
+    public function updateStatus(Request $request, $id){
+//        dd($request->all());
+        $data = Ticket::find($id);
+        $data->status = $request->status;
+        $data->save();
+        $user = $data->user;
+        $data = $data->toarray();
+
+        \Mail::send('pages.tickets.mails.create_ticket', $data, function($message) use ($user) {
+            $message->to($user['email']);
+            $message->from('no-reply@email.com');
+            $message->subject( trans('main_trans.confirm_email'));
+        });
+
+        return redirect()->route('tickets.index')
+            ->with('success','Ticket status updated successfully');
     }
 }

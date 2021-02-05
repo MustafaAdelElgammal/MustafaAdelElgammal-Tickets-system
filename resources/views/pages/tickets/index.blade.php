@@ -41,7 +41,6 @@
                                 <th>{{ trans('main_trans.starts_in') }}</th>
                                 <th>{{ trans('main_trans.end_in') }}</th>
                                 <th>{{ trans('main_trans.status') }}</th>
-                                <th>{{ trans('main_trans.notes') }}</th>
                                 <th>{{ trans('main_trans.action') }}</th>
                             </tr>
                             </thead>
@@ -57,18 +56,64 @@
                                     <td>{!! $row->start_in !!}</td>
                                     <td>{!! $row->end_in !!}</td>
 
-                                    <td>
-                                        @if ($row->status == 'مفعل')
-                                            <span class="label text-success d-flex">
-                                                <div class="dot-label bg-success ml-1"></div>{{ trans('main_trans.enabled') }}
-                                            </span>
-                                        @else
-                                            <span class="label text-danger d-flex">
-                                                <div class="dot-label bg-danger ml-1"></div>{{ trans('main_trans.disabled') }}
-                                            </span>
-                                        @endif
+                                    <td @if($row->status == 'مفعل') class="btn btn-success"
+                                        @elseif($row->status == 'غير مفعل') class="btn btn-danger"
+                                        @else class="btn btn-dark" @endif>
+                                        @can('ticket-edit')
+                                        <button type="button" class="" data-toggle="modal"
+                                                data-target="#modal-{{ $row->id }}">
+                                            @if($row->status == 'مفعل') {{ trans('main_trans.enabled') }}
+                                            @elseif($row->status == 'غير مفعل'){{ trans('main_trans.disabled') }}
+                                            @else {{ trans('main_trans.closed') }} @endif
+
+                                        </button>
+                                        <div class="modal fade" id="modal-{{ $row->id }}" tabindex="-1" role="dialog"
+                                             aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"
+                                                            id="exampleModalLabel">{{ trans('main_trans.update_status') }}</h5>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        {!! Form::open(['method' => 'PUT', 'route' => ['updateStatus', $row->id], 'style' => 'display:inline']) !!}
+                                                        <select name="status" id="select-beast"
+                                                                class="status form-control">
+                                                            @can('ticket-open')
+                                                            <option value="مفعل"
+                                                                    @if($row->status == 'مفعل') selected
+                                                                    class="btn btn-success" @endif >{{ trans('main_trans.enabled') }}</option>
+                                                            @endcan
+                                                            @can('ticket-reopen')
+                                                            <option value="غير مفعل"
+                                                                    @if($row->status == 'غير مفعل') selected
+                                                                    class="btn btn-danger" @endif>{{ trans('main_trans.disabled') }}</option>
+                                                             @endcan
+                                                             @can('ticket-close')
+                                                            <option value="مغلقة"
+                                                                    @if($row->status == 'مغلقة') selected
+                                                                    class="btn btn-dark" @endif >{{ trans('main_trans.closed') }}</option>
+                                                             @endcan
+                                                        </select>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">{{ trans('main_trans.close') }}</button>
+
+                                                            {!! Form::submit( trans('main_trans.save') , ['class' => 'btn btn-success']) !!}
+                                                        </div>
+                                                        {!! Form::close() !!}
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endcan
                                     </td>
-                                    <td>{!! $row->notes !!}</td>
                                     <td>
                                         <div>
                                             @can('user-list')
@@ -100,14 +145,18 @@
         </div>
         <!--/div-->
     </div>
-    <!-- row closed -->
-    </div>
-    <!-- Container closed -->
-    </div>
-    <!-- main-content closed -->
+
+
 @endsection
 @section('js')
-    <!--Internal  Notify js -->
-    <script src="{{ URL::asset('assets/plugins/notify/js/notifIt.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/notify/js/notifit-custom.js') }}"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $("select.status").change(function () {
+                var selectedCountry = $(this).children("option:selected").val();
+                console.log(selectedCountry);
+            });
+        });
+    </script>
 @endsection
