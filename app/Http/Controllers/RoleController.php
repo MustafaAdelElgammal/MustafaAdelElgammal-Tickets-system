@@ -12,13 +12,13 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    function __construct()
-    {
-        $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
-        $this->middleware('permission:role-create', ['only' => ['create','store']]);
-        $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-        $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-    }
+    // function __construct()
+    // {
+    //     $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
+    //     $this->middleware('permission:role-create', ['only' => ['create','store']]);
+    //     $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
+    //     $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+    // }
     /**
      * Display a listing of the resource.
      *
@@ -27,8 +27,8 @@ class RoleController extends Controller
     public function index(Request $request)
     {
         $roles = Role::orderBy('id','DESC')->paginate(5);
-        return view('pages.roles.index',compact('roles'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+        return responseJson(1, "ok", $roles);
+
     }
     /**
      * Show the form for creating a new resource.

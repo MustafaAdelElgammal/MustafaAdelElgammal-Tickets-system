@@ -20,7 +20,7 @@ Route::group(
         'middleware' => ['auth:web', 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
     ], function () {
     Route::get('/', function () {
-        return view('dashboard');
+        return view('layouts.master');
     });
     Route::group(['middleware' => ['auth',]], function () {
         Route::resource('roles', 'RoleController');

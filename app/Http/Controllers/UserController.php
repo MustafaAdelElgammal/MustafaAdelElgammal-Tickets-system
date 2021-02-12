@@ -15,10 +15,10 @@ class UserController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:user-list|role-create|user-edit|user-delete', ['only' => ['index','store']]);
-        $this->middleware('permission:user-create', ['only' => ['create','store']]);
-        $this->middleware('permission:user-edit', ['only' => ['edit','update']]);
-        $this->middleware('permission:user-delete', ['only' => ['destroy']]);
+//        $this->middleware('permission:user-list|role-create|user-edit|user-delete', ['only' => ['index','store']]);
+//        $this->middleware('permission:user-create', ['only' => ['create','store']]);
+//        $this->middleware('permission:user-edit', ['only' => ['edit','update']]);
+//        $this->middleware('permission:user-delete', ['only' => ['destroy']]);
     }
     /**
      * Display a listing of the resource.
@@ -27,9 +27,9 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $data = User::orderBy('id','DESC')->paginate(5);
-        return view('pages.users.index',compact('data'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+        $data = User::orderBy('id','DESC')->get();
+        return responseJson(1, "ok", $data);
+
     }
     /**
      * Show the form for creating a new resource.
@@ -71,7 +71,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-        return view('pages.users.show',compact('user'));
+        return responseJson(1, "ok", $user);
     }
     /**
      * Show the form for editing the specified resource.
@@ -84,7 +84,8 @@ class UserController extends Controller
         $user = User::find($id);
         $roles = Role::pluck('name','name')->all();
         $userRole = $user->roles->pluck('name','name')->all();
-        return view('pages.users.edit',compact('user','roles','userRole'));
+        return responseJson(1, "ok", $user, $roles, $userRole);
+
     }
     /**
      * Update the specified resource in storage.
@@ -95,12 +96,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$id,
-            'password' => 'same:confirm-password',
-            'roles_name' => 'required'
-        ]);
+        
         $input = $request->all();
         if(!empty($input['password'])){
             $input['password'] = Hash::make($input['password']);
@@ -111,8 +107,8 @@ class UserController extends Controller
         $user->update($input);
         DB::table('model_has_roles')->where('model_id',$id)->delete();
         $user->assignRole($request->input('roles_name'));
-        return redirect()->route('users.index')
-            ->with('success','User updated successfully');
+        return responseJson(1, "ok", $user);
+
     }
     /**
      * Remove the specified resource from storage.
