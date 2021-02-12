@@ -54,8 +54,8 @@ class RoleController extends Controller
         ]);
         $role = Role::create(['name' => $request->input('name')]);
         $role->syncPermissions($request->input('permission'));
-        return redirect()->route('roles.index')
-            ->with('success','Role created successfully');
+        return responseJson(1, "ok", $role);
+
     }
     /**
      * Display the specified resource.
@@ -69,7 +69,7 @@ class RoleController extends Controller
         $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
             ->where("role_has_permissions.role_id",$id)
             ->get();
-        return view('pages.roles.show',compact('role','rolePermissions'));
+        return responseJson(1, "ok", $role, $rolePermissions);
     }
     /**
      * Show the form for editing the specified resource.
@@ -95,16 +95,16 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'permission' => 'required',
-        ]);
+//        $this->validate($request, [
+//            'name' => 'required',
+//            'permission' => 'required',
+//        ]);
         $role = Role::find($id);
         $role->name = $request->input('name');
         $role->save();
         $role->syncPermissions($request->input('permission'));
-        return redirect()->route('roles.index')
-            ->with('success','Role updated successfully');
+        return responseJson(1, "ok", $role);
+
     }
     /**
      * Remove the specified resource from storage.
@@ -115,7 +115,7 @@ class RoleController extends Controller
     public function destroy($id)
     {
         DB::table("roles")->where('id',$id)->delete();
-        return redirect()->route('roles.index')
-            ->with('success','Role deleted successfully');
+        return responseJson(1, "ok", '');
+
     }
 }

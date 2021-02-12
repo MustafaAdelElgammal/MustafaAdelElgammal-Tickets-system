@@ -26,9 +26,8 @@ class TicketController extends Controller
             $data = Ticket::where('user_id', Auth::user()->id)->orwhere('owner_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
 
         }
+        return responseJson(1, "ok", $data);
 
-        return view('pages.tickets.index', compact('data'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     /**
@@ -50,12 +49,12 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'description' => 'required',
-            'start_in' => 'required',
-            'end_in' => 'required'
-        ]);
+//        $this->validate($request, [
+//            'name' => 'required',
+//            'description' => 'required',
+//            'start_in' => 'required',
+//            'end_in' => 'required'
+//        ]);
         $input = $request->all();
         $start_in = Carbon::parse($request->start_in);
         $end_in = Carbon::parse($request->end_in);
@@ -72,8 +71,8 @@ class TicketController extends Controller
             $message->subject( trans('main_trans.confirm_email'));
         });
 
-        return redirect()->route('tickets.index')
-            ->with('success', 'Ticket created successfully');
+        return responseJson(1, "ok", $ticket);
+
     }
 
     /**
@@ -101,8 +100,8 @@ class TicketController extends Controller
         $end_in = Carbon::parse($data->end_in);
         $starts_in = $start_in->format('Y-m-d\TH:m');
         $ends_in = $end_in->format('Y-m-d\TH:m');
+        return responseJson(1, "ok", $data);
 
-        return view('pages.tickets.edit',compact('data', 'starts_in', 'ends_in'));
 
     }
 
@@ -115,10 +114,10 @@ class TicketController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'description' => 'required',
-        ]);
+//        $this->validate($request, [
+//            'name' => 'required',
+//            'description' => 'required',
+//        ]);
         $input = $request->all();
         $start_in = Carbon::parse($request->start_in);
         $end_in = Carbon::parse($request->end_in);
@@ -126,8 +125,7 @@ class TicketController extends Controller
         $input['end_in'] = $end_in->format('Y-m-d H:m:s');
         $ticket = Ticket::find($id);
         $ticket->update($input);
-        return redirect()->route('tickets.index')
-            ->with('success', 'Ticket updated successfully');
+        return responseJson(1, "ok", $ticket);
     }
 
     /**
@@ -139,8 +137,7 @@ class TicketController extends Controller
     public function destroy($id)
     {
         Ticket::find($id)->delete();
-        return redirect()->route('tickets.index')
-            ->with('success','Ticket deleted successfully');
+        return responseJson(1, "ok", '');
     }
 
     public function updateStatus(Request $request, $id){
@@ -156,8 +153,8 @@ class TicketController extends Controller
             $message->from('no-reply@email.com');
             $message->subject( trans('main_trans.confirm_email'));
         });
+        return responseJson(1, "ok", $data);
 
-        return redirect()->route('tickets.index')
-            ->with('success','Ticket status updated successfully');
+
     }
 }

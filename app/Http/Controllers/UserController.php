@@ -49,18 +49,18 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password',
-            'roles_name' => 'required'
-        ]);
+//        $this->validate($request, [
+//            'name' => 'required',
+//            'email' => 'required|email|unique:users,email',
+//            'password' => 'required|same:confirm-password',
+//            'roles_name' => 'required'
+//        ]);
         $input = $request->all();
         $input['password'] = Hash::make($input['password']);
         $user = User::create($input);
         $user->assignRole($request->input('roles_name'));
-        return redirect()->route('users.index')
-            ->with('success','User created successfully');
+        return responseJson(1, "ok", $user);
+
     }
     /**
      * Display the specified resource.
@@ -119,7 +119,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         User::find($id)->delete();
-        return redirect()->route('users.index')
-            ->with('success','User deleted successfully');
+        return responseJson(1, "ok", '');
+
     }
 }
